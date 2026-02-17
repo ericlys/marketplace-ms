@@ -3,9 +3,11 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { swaggerCustomCss, swaggerOptions } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -53,6 +55,7 @@ async function bootstrap() {
     credentials: true,
     maxAge: 86400, // 24 hours
   });
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -82,7 +85,7 @@ async function bootstrap() {
     .setContact(
       'Marketplace Team',
       '<https://marketplace.com>',
-      'ericlysm@gmail.com',
+      'dev@marketplace.com',
     )
     .setLicense('MIT', '<https://opensource.org/licenses/MIT>')
     .addBearerAuth(
@@ -114,7 +117,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    ...swaggerOptions,
+    customCss: swaggerCustomCss,
+  });
 
   const port = process.env.PORT || 3005;
   await app.listen(port);
