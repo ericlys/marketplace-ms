@@ -4,31 +4,39 @@ import { Injectable, Logger } from '@nestjs/common';
 export class DefaultFallbackService {
   private readonly logger = new Logger(DefaultFallbackService.name);
 
-  createDefaultFallback<T>(defaultResponse: T, serviceName: string): () => T {
-    return (): T => {
+  createDefaultFallback<T>(
+    defaultResponse: T,
+    serviceName: string,
+  ): () => Promise<T> {
+    return (): Promise<T> => {
       this.logger.warn(`Using default fallback for ${serviceName}`);
-      return defaultResponse;
+      return Promise.resolve(defaultResponse);
     };
   }
 
-  createErrorFallback(serviceName: string, errorMessage: string): () => never {
-    return (): never => {
-      this.logger.error(`Fallback error for ${serviceName}: ${errorMessage}`);
-      throw new Error(`${serviceName} service unavailable: ${errorMessage}`);
-    };
-  }
-
-  createEmptyArrayFallback<T>(serviceName: string): () => T[] {
-    return (): T[] => {
+  createEmptyArrayFallback<T>(serviceName: string): () => Promise<T[]> {
+    return (): Promise<T[]> => {
       this.logger.warn(`Using empty array fallback for ${serviceName}`);
-      return [];
+      return Promise.resolve([]);
     };
   }
 
-  createEmptyObjectFallback<T>(serviceName: string): () => T {
-    return (): T => {
+  createEmptyObjectFallback<T>(serviceName: string): () => Promise<T> {
+    return (): Promise<T> => {
       this.logger.warn(`Using empty object fallback for ${serviceName}`);
-      return {} as T;
+      return Promise.resolve({} as T);
+    };
+  }
+
+  createErrorFallback(
+    serviceName: string,
+    errorMessage: string,
+  ): () => Promise<never> {
+    return (): Promise<never> => {
+      this.logger.error(`Fallback error for ${serviceName}: ${errorMessage}`);
+      return Promise.reject(
+        new Error(`${serviceName} service unavailable: ${errorMessage}`),
+      );
     };
   }
 }

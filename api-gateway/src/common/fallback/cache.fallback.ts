@@ -35,18 +35,18 @@ export class CacheFallbackService {
     key: string,
     defaultData: T,
     timeout: number = 300000,
-  ): () => T {
-    return (): T => {
+  ): () => Promise<T> {
+    return (): Promise<T> => {
       const cached = this.getCachedData<T>(key, timeout);
 
       if (cached) {
         this.logger.log(`Using cached data for ${key}`);
-        return cached;
+        return Promise.resolve(cached);
       }
 
       this.logger.warn(`No cached data available for ${key}, using default`);
 
-      return defaultData;
+      return Promise.resolve(defaultData);
     };
   }
 }
